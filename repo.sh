@@ -3,6 +3,8 @@ set -euo pipefail
 
 cd "$(dirname "$0")"
 root=$PWD
+# shellcheck source=repack.sh
+source "$root/repack.sh"
 
 # prints missing names, non-zero exit
 pacman -T devtools base-devel git gnupg || { echo "missing host deps" >&2; exit 1; }
@@ -29,9 +31,33 @@ is_built() {
 
 rm -rf build && mkdir build && cd build
 todo=() new=()
+declare -A revs sums
 for dir in "$root"/pkgs/*/; do
 	pkg=$(basename "$dir")
+	meta=$dir$meta_name
+	sum=$(patches_sum "$dir")
+	rev=$(next_rev "$meta" "$sum")
+	revs[$pkg]=$rev sums[$pkg]=$sum
+	# record only written once artifacts match, same inputs = nothing to do
+	moved=true patched=true
+	has_upstream_moved "$pkg" "$meta" || moved=false
+	has_patches_changed "$meta" "$sum" || patched=false
+	if ! $moved && ! $patched && has_artifacts "$meta" "$dest"; then
+		echo "$pkg: upstream and patches unchanged, skipping"
+		touch_meta "$meta"
+		continue
+	fi
 	pkgctl repo clone --protocol https "$pkg"
+	if $moved; then
+		echo "$pkg: upstream moved since last build"
+		upstream_log "$pkg" "$meta"
+	fi
+	if $patched; then
+		echo "$pkg: patches changed, rev $rev"
+	fi
+	if ! $moved && ! $patched; then
+		echo "$pkg: artifacts missing from $dest, rebuilding"
+	fi
 	# we purposely exclude any path to metadata here, might have moved
 	# makes for PKGBUILD as single source of truth.
 	git -C "$pkg" apply -3 --exclude=.SRCINFO "$dir"*.patch || {
@@ -39,15 +65,21 @@ for dir in "$root"/pkgs/*/; do
 		exit 1
 	}
 	# own rel suffix: distinct cache filename, sorts above upstream
-	# makepkg allows one dot, so N -> N.90 and N.M -> N.M90
+	# makepkg allows one dot, so N -> N.90 and N.M -> N.M90 (rev 0)
 	rel=$(sed -n 's/^pkgrel=//p' "$pkg/PKGBUILD")
-	[[ $rel == *.* ]] && rel+="90" || rel+=".90"
+	suffix=$((rel_base + rev))
+	[[ $rel == *.* ]] && rel+="$suffix" || rel+=".$suffix"
 	sed -i "s/^pkgrel=.*/pkgrel=$rel/" "$pkg/PKGBUILD"
 	# regen from patched PKGBUILD, survives upstream moves
 	(cd "$pkg" && makepkg --printsrcinfo > .SRCINFO)
 	# same version = same filename, rebuild would break users' caches
 	if is_built "$pkg"; then
 		echo "$pkg: up to date, skipping"
+		# first run over existing artifacts has no record yet
+		if ! touch_meta "$meta"; then
+			mapfile -t files < <(pkg_files "$pkg")
+			write_meta "$pkg" "$meta" "$rev" "$sum" "${files[@]}"
+		fi
 	else
 		todo+=("$pkg")
 		mapfile -t files < <(pkg_files "$pkg")
@@ -63,6 +95,13 @@ done
 
 # repo (core/extra/multilib) auto-detected per pkgbase
 PKGDEST="$dest" pkgctl build -c "${todo[@]}"
+
+# build succeeded, artifacts now come from these upstream heads + patches
+for pkg in "${todo[@]}"; do
+	mapfile -t files < <(pkg_files "$pkg")
+	write_meta "$pkg" "$root/pkgs/$pkg/$meta_name" \
+		"${revs[$pkg]}" "${sums[$pkg]}" "${files[@]}"
+done
 
 # only this run's packages, repo-add warns on every re-added entry
 cd "$dest"

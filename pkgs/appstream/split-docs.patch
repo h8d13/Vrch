@@ -1,0 +1,55 @@
+diff --git a/PKGBUILD b/PKGBUILD
+index 759be05..92b74b1 100644
+--- a/PKGBUILD
++++ b/PKGBUILD
+@@ -4,7 +4,8 @@
+ 
+ pkgbase=appstream
+ pkgname=(appstream
+-         appstream-qt)
++         appstream-qt
++         appstream-docs)
+ pkgver=1.2.0
+ pkgrel=1
+ pkgdesc='Provides a standard for creating app stores across distributions'
+@@ -54,12 +55,29 @@ build() {
+   meson compile -C build
+ }
+ 
++_pick() {
++  local p="$1" f d; shift
++  for f; do
++    d="$srcdir/$p/${f#$pkgdir/}"
++    mkdir -p "$(dirname "$d")"
++    mv "$f" "$d"
++    rmdir -p --ignore-fail-on-non-empty "$(dirname "$f")"
++  done
++}
++
+ package_appstream() {
++  optdepends=('appstream-docs: API documentation')
++
+   meson install --destdir "$pkgdir" -C build
+ 
+ # provided by -qt subpackage
+   rm -r "$pkgdir"/usr/{include/AppStreamQt,lib/cmake,lib/libAppStreamQt.*}
+ 
++  (
++    cd "$pkgdir"
++    _pick docs usr/share/{doc,gtk-doc}
++  )
++
+   install -Dm644 update-appstream-cache.hook "$pkgdir"/usr/share/libalpm/hooks/90-update-appstream-cache.hook
+ }
+ 
+@@ -77,3 +95,10 @@ package_appstream-qt() {
+ # provided by appstream
+   rm -r "$pkgdir"/usr/{bin,include/appstream{,-compose},lib/{appstreamcli-compose,ascompose,girepository-1.0,libappstream*,pkgconfig},share}
+ }
++
++package_appstream-docs() {
++  pkgdesc='Documentation for AppStream'
++  depends=()
++
++  mv docs/* "$pkgdir"
++}

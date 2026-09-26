@@ -24,7 +24,7 @@ index 230f88b..6756fad 100644
  sha256sums=('a695fbe19c0165f295a8531b1e4e855cd94d0875d2f88ec4b61080677e27188a')
  
  prepare() {
-@@ -33,7 +37,34 @@ check() {
+@@ -33,7 +37,35 @@ check() {
    ctest --test-dir build --output-on-failure
  }
  
@@ -55,6 +55,7 @@ index 230f88b..6756fad 100644
 +
 +package_openjpeg2-docs() {
 +  pkgdesc+=" - documentation"
++  depends=()
 +
 +  mv docs/* "$pkgdir"
 +
