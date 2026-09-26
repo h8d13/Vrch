@@ -17,6 +17,11 @@ for dir in "$root"/pkgs/*/; do
 		echo "$pkg: patches conflict with upstream" >&2
 		exit 1
 	}
+	# own rel suffix: distinct cache filename, sorts above upstream
+	# makepkg allows one dot, so N -> N.90 and N.M -> N.M90
+	rel=$(sed -n 's/^pkgrel=//p' "$pkg/PKGBUILD")
+	[[ $rel == *.* ]] && rel+=90 || rel+=.90
+	sed -i "s/^pkgrel=.*/pkgrel=$rel/" "$pkg/PKGBUILD"
 	# regen from patched PKGBUILD, survives upstream moves
 	(cd "$pkg" && makepkg --printsrcinfo > .SRCINFO)
 done
