@@ -1,0 +1,102 @@
+From 75cae6ec532e6a13168a8ca062b89ec2e927c4d9 Mon Sep 17 00:00:00 2001
+From: h8d13 <hadean-eon-dev@proton.me>
+Date: Sat, 26 Sep 2026 12:40:24 +0200
+Subject: [PATCH] split: into `-docs`
+
+* saves 4.73MB installed (84% docs)
+
+Signed-off-by: h8d13 <hadean-eon-dev@proton.me>
+---
+ .SRCINFO |  4 ++++
+ PKGBUILD | 40 +++++++++++++++++++++++++++++++++-------
+ 2 files changed, 37 insertions(+), 7 deletions(-)
+
+diff --git a/.SRCINFO b/.SRCINFO
+index 793b379..8f0b317 100644
+--- a/.SRCINFO
++++ b/.SRCINFO
+@@ -16,3 +16,7 @@ pkgbase = libmtp
+ 	sha256sums = SKIP
+ 
+ pkgname = libmtp
++	optdepends = libmtp-docs: API documentation
++
++pkgname = libmtp-docs
++	pkgdesc = Library implementation of the Media Transfer Protocol - documentation
+diff --git a/PKGBUILD b/PKGBUILD
+index d7f52fa..fe5ebd8 100644
+--- a/PKGBUILD
++++ b/PKGBUILD
+@@ -3,7 +3,11 @@
+ # Contributor: damir <damir@archlinux.org>
+ # Contributor: Kevin Edmonds <edmondskevin@hotmail.com>
+ 
+-pkgname=libmtp
++pkgbase=libmtp
++pkgname=(
++  libmtp
++  libmtp-docs
++)
+ pkgver=1.1.23
+ pkgrel=1
+ pkgdesc='Library implementation of the Media Transfer Protocol'
+@@ -14,13 +18,13 @@ depends=(glibc
+          libgcrypt
+          libusb)
+ makedepends=(doxygen)
+-source=(https://downloads.sourceforge.net/$pkgname/$pkgname-$pkgver.tar.gz{,.asc})
++source=(https://downloads.sourceforge.net/$pkgbase/$pkgbase-$pkgver.tar.gz{,.asc})
+ sha256sums=('74a2b6e8cb4a0304e95b995496ea3ac644c29371649b892b856e22f12a0bdeed'
+             'SKIP')
+ validpgpkeys=(7C4AFD61D8AAE7570796A5172209D6902F969C95) # Marcus Meißner <meissner@suse.de>
+ 
+ build() {
+-  cd $pkgname-$pkgver
++  cd $pkgbase-$pkgver
+   ./configure \
+     --prefix=/usr \
+     --with-udev=/usr/lib/udev
+@@ -28,14 +32,36 @@ build() {
+ }
+ 
+ check() {
+-  cd $pkgname-$pkgver
++  cd $pkgbase-$pkgver
+   make -k check
+ }
+ 
+-package() {
+-  cd $pkgname-$pkgver
++_pick() {
++  local p="$1" f d; shift
++  for f; do
++    d="$srcdir/$p/${f#$pkgdir/}"
++    mkdir -p "$(dirname "$d")"
++    mv "$f" "$d"
++    rmdir -p --ignore-fail-on-non-empty "$(dirname "$f")"
++  done
++}
++
++package_libmtp() {
++  optdepends=('libmtp-docs: API documentation')
++
++  cd $pkgbase-$pkgver
+   make DESTDIR="$pkgdir" install
+ 
+-# Install man page
++  (
++    cd "$pkgdir"
++    _pick docs usr/share/doc/$pkgbase-$pkgver
++  )
++
+   install -Dm644 doc/man/man3/*.3 -t "$pkgdir"/usr/share/man/man3/
+ }
++
++package_libmtp-docs() {
++  pkgdesc+=' - documentation'
++
++  mv docs/* "$pkgdir"
++}
+-- 
+GitLab
+
