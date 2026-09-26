@@ -1,5 +1,8 @@
 # Vrch
 
+> `vrch` is a repack utility that uses `*.patch` files to modify PKGBUILDs
+> and builds them in clean chroots, mostly aims to make pkg splits easier.
+
 Signatures:
 
 ```
