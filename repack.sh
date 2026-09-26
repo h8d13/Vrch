@@ -51,6 +51,18 @@ patches_sum() {
 	echo "${out%% *}"
 }
 
+# patches carry PKGBUILD changes only, .SRCINFO is regenerated from it
+# run from / since git inside a repo drops paths outside the cwd prefix
+# unreadable patches fail too, a guard must not pass on error
+validate_patches() {
+	local stat
+	stat=$(git -C / apply --numstat "$(realpath "$1")"/*.patch) || return 1
+	if [[ $stat == *$'\t'.SRCINFO* ]]; then
+		echo "$1: patches touch .SRCINFO, keep them to PKGBUILD" >&2
+		return 1
+	fi
+}
+
 # when the patches differ from what the artifacts were built with
 has_patches_changed() {
 	[[ $(meta_get "$1" patches) != "$2" ]]

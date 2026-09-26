@@ -35,6 +35,7 @@ declare -A revs sums
 for dir in "$root"/pkgs/*/; do
 	pkg=$(basename "$dir")
 	meta=$dir$meta_name
+	validate_patches "$dir" || exit 1
 	sum=$(patches_sum "$dir")
 	rev=$(next_rev "$meta" "$sum")
 	revs[$pkg]=$rev sums[$pkg]=$sum
@@ -58,9 +59,7 @@ for dir in "$root"/pkgs/*/; do
 	if ! $moved && ! $patched; then
 		echo "$pkg: artifacts missing from $dest, rebuilding"
 	fi
-	# we purposely exclude any path to metadata here, might have moved
-	# makes for PKGBUILD as single source of truth.
-	git -C "$pkg" apply -3 --exclude=.SRCINFO "$dir"*.patch || {
+	git -C "$pkg" apply -3 "$dir"*.patch || {
 		echo "$pkg: patches conflict with upstream" >&2
 		exit 1
 	}

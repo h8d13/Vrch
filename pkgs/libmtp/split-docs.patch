@@ -7,25 +7,11 @@ Subject: [PATCH] split: into `-docs`
 
 Signed-off-by: h8d13 <hadean-eon-dev@proton.me>
 ---
- .SRCINFO |  5 +++++
- PKGBUILD | 41 ++++++++++++++++++++++++++++++++++-------
- 2 files changed, 39 insertions(+), 7 deletions(-)
+ PKGBUILD |   41 ++++++++++++++++++++++++++++++++++-------
+ 1 file changed, 34 insertions(+), 7 deletions(-)
 
-diff --git a/.SRCINFO b/.SRCINFO
-index 793b379..8f0b317 100644
---- a/.SRCINFO
-+++ b/.SRCINFO
-@@ -16,3 +16,8 @@ pkgbase = libmtp
- 	sha256sums = SKIP
- 
- pkgname = libmtp
-+	optdepends = libmtp-docs: API documentation
-+
-+pkgname = libmtp-docs
-+	pkgdesc = Library implementation of the Media Transfer Protocol - documentation
-+	depends = 
 diff --git a/PKGBUILD b/PKGBUILD
-index d7f52fa..fe5ebd8 100644
+index d7f52fa..9293757 100644
 --- a/PKGBUILD
 +++ b/PKGBUILD
 @@ -3,7 +3,11 @@
@@ -99,6 +85,3 @@ index d7f52fa..fe5ebd8 100644
 +
 +  mv docs/* "$pkgdir"
 +}
--- 
-GitLab
-
