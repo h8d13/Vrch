@@ -1,9 +1,11 @@
 # Vrch
 
 > `vrch` is a repack utility that uses `*.patch` files to modify PKGBUILDs
-> and builds them in clean chroots, mostly aims to make pkg splits easier.
+> and builds them in clean chroots, mostly aims to make pkg splits simpler.
 > It generates `.SRCINFO` files automatically and uses a custom format:
 > for `.RPKGINFO` to track upstream commits and patch revisions...
+
+This makes testing patches faster and have reference implemetations.
 
 ---
 
