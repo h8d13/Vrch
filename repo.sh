@@ -31,5 +31,11 @@ cd "$root/out"
 for p in *.pkg.tar.zst; do
 	[[ $p.sig -nt $p ]] || gpg --yes --detach-sign "$p"
 done
-# -s sign db, -v verify pkg sigs, -R drop files of replaced versions
+# -s sign db, -v verify existing db sig, -R drop files of replaced versions
 repo-add -s -v -R vrch.db.tar.zst *.pkg.tar.zst
+
+# repo-add always symlinks when fs allows, static hosts serve link text
+for db in vrch.db vrch.files; do
+	cp --remove-destination "$db.tar.zst" "$db"
+	cp --remove-destination "$db.tar.zst.sig" "$db.sig"
+done
