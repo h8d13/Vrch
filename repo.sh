@@ -23,19 +23,22 @@ done
 
 # repo (core/extra/multilib) auto-detected per pkgbase
 # PKGDEST must exist, else makechrootpkg falls back to PKGBUILD dir
-mkdir -p "$root/out"
-PKGDEST="$root/out" pkgctl build -c */
+# chroot builds for host arch, pacman.conf: Server = .../out/$repo/$arch
+repo=${REPO:-vrch}
+dest=$root/out/$repo/$(uname -m)
+mkdir -p "$dest"
+PKGDEST="$dest" pkgctl build -c */
 
 # rebuilt same version overwrites pkg, so stale sig means older than pkg
-cd "$root/out"
+cd "$dest"
 for p in *.pkg.tar.zst; do
 	[[ $p.sig -nt $p ]] || gpg --yes --detach-sign "$p"
 done
 # -s sign db, -v verify existing db sig, -R drop files of replaced versions
-repo-add -s -v -R vrch.db.tar.zst *.pkg.tar.zst
+repo-add -s -v -R "$repo.db.tar.zst" *.pkg.tar.zst
 
 # repo-add always symlinks when fs allows, static hosts serve link text
-for db in vrch.db vrch.files; do
+for db in "$repo.db" "$repo.files"; do
 	cp --remove-destination "$db.tar.zst" "$db"
 	cp --remove-destination "$db.tar.zst.sig" "$db.sig"
 done
