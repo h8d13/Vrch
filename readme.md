@@ -5,7 +5,7 @@
 > It generates `.SRCINFO` files automatically and uses a custom format:
 > for `.RPKGINFO` to track upstream commits and patch revisions...
 
-This makes testing patches faster and have reference implemetations.
+This makes testing patches faster and have reference implementations.
 
 ---
 
