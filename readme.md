@@ -2,8 +2,12 @@
 
 > `vrch` is a repack utility that uses `*.patch` files to modify PKGBUILDs
 > and builds them in clean chroots, mostly aims to make pkg splits easier.
+> It generates `.SRCINFO` files automatically and uses a custom format:
+> for `.RPKGINFO` to track upstream commits and patch revisions...
 
-Signatures:
+---
+
+## Signatures:
 
 ```
 curl -O https://raw.githubusercontent.com/h8d13/Vrch/master/vrch.pub
@@ -13,7 +17,7 @@ sudo pacman-key --lsign-key 83CE533ED3212DA833DA03034066352FC2E0674B
 
 Pubkey ID: [`83CE533ED3212DA833DA03034066352FC2E0674B`](./vrch.pub)
 
-Repos:
+## Repos:
 
 Then edit `/etc/pacman.conf`
 > Add above `[core]` if desired. Or `pacman -S vrch/somepkg`
