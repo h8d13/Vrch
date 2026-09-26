@@ -5,7 +5,7 @@ cd "$(dirname "$0")"
 root=$PWD
 
 # prints missing names, non-zero exit
-pacman -T devtools base-devel git || { echo "missing host deps" >&2; exit 1; }
+pacman -T devtools base-devel git gnupg || { echo "missing host deps" >&2; exit 1; }
 
 rm -rf build && mkdir build && cd build
 for dir in "$root"/pkgs/*/; do
@@ -25,3 +25,11 @@ done
 # PKGDEST must exist, else makechrootpkg falls back to PKGBUILD dir
 mkdir -p "$root/out"
 PKGDEST="$root/out" pkgctl build -c */
+
+# rebuilt same version overwrites pkg, so stale sig means older than pkg
+cd "$root/out"
+for p in *.pkg.tar.zst; do
+	[[ $p.sig -nt $p ]] || gpg --yes --detach-sign "$p"
+done
+# -s sign db, -v verify pkg sigs, -R drop files of replaced versions
+repo-add -s -v -R vrch.db.tar.zst *.pkg.tar.zst
