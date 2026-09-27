@@ -16,9 +16,11 @@ This makes testing patches faster and have reference implementations.
 curl -O https://raw.githubusercontent.com/h8d13/Vrch/master/vrch.pub
 sudo pacman-key --add vrch.pub
 sudo pacman-key --lsign-key 83CE533ED3212DA833DA03034066352FC2E0674B
+sudo pacman-key --lsign-key D614130877C531F18CCBEFBC5D54CFFDD550A51F
 ```
 
-Pubkey ID: [`83CE533ED3212DA833DA03034066352FC2E0674B`](./vrch.pub)
+Pubkey IDs: [`83CE533ED3212DA833DA03034066352FC2E0674B`](./vrch.pub),
+[`D614130877C531F18CCBEFBC5D54CFFDD550A51F`](./vrch.pub)
 
 ## Repos:
 
