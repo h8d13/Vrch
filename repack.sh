@@ -30,11 +30,55 @@ packaging_url() {
 			"$(gitlab_project_name_to_path "$1")"' _ "$1"
 }
 
+# makepkg.conf value, same lookup as makepkg: env, user conf, system conf
+# child bash: config sourcing leaks globals and readonly arrays
+makepkg_conf() {
+	# shellcheck disable=SC2016 # expanded by the child
+	bash -c 'source /usr/share/makepkg/util/config.sh
+		load_makepkg_config
+		printf "%s\n" "${!1:-}"' _ "$1"
+}
+
+# "Name <mail>", placeholders rejected like pkgctl repo configure does
+# makechrootpkg reads it too, unset shows "Unknown Packager" in .PKGINFO
+is_packager_valid() {
+	[[ $1 =~ ^(.+)\ \<.+@.+\>$ ]] || return 1
+	[[ ${BASH_REMATCH[1]} != "John Doe" &&
+		${BASH_REMATCH[1]} != "Unknown Packager" ]]
+}
+
+# primary fingerprints of a key selector or key file, one per line
+key_fprs() {
+	gpg --with-colons "$@" | awk -F: '
+		$1 == "pub" || $1 == "sec" { want = 1; next }
+		$1 == "fpr" && want { print $10; want = 0 }'
+}
+
+# key must be usable here and shipped in the pubkey file,
+# else users' pacman rejects what this machine signs
+validate_signing_key() {
+	local key=$1 pub=$2 fpr
+	if [[ -z $key ]]; then
+		echo "GPGKEY unset in makepkg.conf" >&2
+		return 1
+	fi
+	fpr=$(key_fprs --list-secret-keys "$key") || {
+		echo "GPGKEY $key: no secret key in keyring" >&2
+		return 1
+	}
+	if ! grep -qx "$fpr" < <(key_fprs --show-keys "$pub"); then
+		echo "GPGKEY $fpr missing from $pub, export it there" >&2
+		return 1
+	fi
+}
+
 # packaging repo head hash without cloning
+# explicit failures: callers in || context run without errexit
 remote_head() {
 	local url out
-	url=$(packaging_url "$1")
-	out=$(git ls-remote "$url" HEAD)
+	url=$(packaging_url "$1") || return 1
+	out=$(git ls-remote "$url" HEAD) || return 1
+	[[ -n $out ]] || { echo "$1: no HEAD at $url" >&2; return 1; }
 	echo "${out%%[[:space:]]*}"
 }
 
@@ -79,13 +123,6 @@ next_rev() {
 	echo "$rev"
 }
 
-# hash compare only: commit dates lie (rebase, amend, tz)
-has_upstream_moved() {
-	local head old
-	head=$(remote_head "$1")
-	old=$(meta_get "$2" upstream)
-	[[ $head != "$old" ]]
-}
 
 # upstream commits since our record, what to review against our patches
 upstream_log() {
@@ -133,4 +170,48 @@ write_meta() {
 touch_meta() {
 	[[ -f $1 ]] || return 1
 	sed -i "s/^checked = .*/checked = $(now)/" "$1"
+}
+
+# why a package needs a build: "moved" and/or "patched", else "missing"
+# when recorded artifacts are gone from dest, empty when up to date
+# read-only, no clone: safe for CI checks. args: pkg meta patches_sum dest
+# upstream: hash compare only, commit dates lie (rebase, amend, tz)
+build_reasons() {
+	local head out=()
+	head=$(remote_head "$1") || {
+		echo "$1: upstream lookup failed" >&2
+		return 1
+	}
+	[[ $head != "$(meta_get "$2" upstream)" ]] && out+=(moved)
+	has_patches_changed "$2" "$3" && out+=(patched)
+	((${#out[@]})) || has_artifacts "$2" "$4" || out+=(missing)
+	echo "${out[*]}"
+}
+
+# binaries live on their own branch, one commit replaced on each publish,
+# so master history stays text. layout: <repo>/<arch>/ at its root
+# shellcheck disable=SC2034 # read by publish.sh
+dist_branch=dist
+
+# published branch into FETCH_HEAD, 2 when it was never published
+# ls-remote first: a plain fetch can't tell missing from network errors
+fetch_dist() {
+	local rc=0
+	git ls-remote --exit-code --heads origin "$dist_branch" || rc=$?
+	((rc == 0)) || return "$rc"
+	git fetch origin "$dist_branch"
+}
+
+# fresh machine or CI: seed out/ from the published branch so skip checks
+# see what users have, else same names get rebuilt. args: out_dir repo_db
+# a local db may be ahead of the published one, never overwrite it
+seed_out() {
+	local rc=0
+	[[ -e $2 ]] && return 0
+	fetch_dist || rc=$?
+	# never published: nothing to seed, first build
+	((rc == 2)) && return 0
+	((rc == 0)) || return 1
+	mkdir -p "$1"
+	git archive FETCH_HEAD | tar -x -C "$1"
 }

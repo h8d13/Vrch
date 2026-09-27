@@ -28,7 +28,12 @@ Then edit `/etc/pacman.conf`
 ```
 [vrch]
 SigLevel = Required
-Server = https://raw.githubusercontent.com/h8d13/Vrch/master/out/$repo/$arch
+Server = https://raw.githubusercontent.com/h8d13/Vrch/dist/$repo/$arch
 ```
 
 ---
+
+## License
+
+Everything in this repository is licensed under [0BSD](./LICENSE), in line
+with Arch RFC40. Built packages keep their upstream licenses.

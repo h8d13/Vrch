@@ -9,10 +9,20 @@ source "$root/repack.sh"
 # prints missing names, non-zero exit
 pacman -T devtools base-devel git gnupg || { echo "missing host deps" >&2; exit 1; }
 
+# identity comes from makepkg.conf, both machines sign with their own key
+packager=$(makepkg_conf PACKAGER)
+gpgkey=$(makepkg_conf GPGKEY)
+is_packager_valid "$packager" || {
+	echo "PACKAGER '$packager' invalid, set it in makepkg.conf" >&2
+	exit 1
+}
+validate_signing_key "$gpgkey" "$root/vrch.pub" || exit 1
+
 # chroot builds for host arch.
 # PKGDEST must exist, else makechrootpkg falls back to PKGBUILD dir
 repo=${REPO:-vrch}
 dest=$root/out/$repo/$(uname -m)
+seed_out "$root/out" "$dest/$repo.db" || exit 1
 mkdir -p "$dest"
 
 # package files the patched PKGBUILD produces, as paths in dest
@@ -40,23 +50,21 @@ for dir in "$root"/pkgs/*/; do
 	rev=$(next_rev "$meta" "$sum")
 	revs[$pkg]=$rev sums[$pkg]=$sum
 	# record only written once artifacts match, same inputs = nothing to do
-	moved=true patched=true
-	has_upstream_moved "$pkg" "$meta" || moved=false
-	has_patches_changed "$meta" "$sum" || patched=false
-	if ! $moved && ! $patched && has_artifacts "$meta" "$dest"; then
+	reasons=$(build_reasons "$pkg" "$meta" "$sum" "$dest") || exit 1
+	if [[ -z $reasons ]]; then
 		echo "$pkg: upstream and patches unchanged, skipping"
 		touch_meta "$meta"
 		continue
 	fi
 	pkgctl repo clone --protocol https "$pkg"
-	if $moved; then
+	if [[ $reasons == *moved* ]]; then
 		echo "$pkg: upstream moved since last build"
 		upstream_log "$pkg" "$meta"
 	fi
-	if $patched; then
+	if [[ $reasons == *patched* ]]; then
 		echo "$pkg: patches changed, rev $rev"
 	fi
-	if ! $moved && ! $patched; then
+	if [[ $reasons == missing ]]; then
 		echo "$pkg: artifacts missing from $dest, rebuilding"
 	fi
 	git -C "$pkg" apply -3 "$dir"*.patch || {
@@ -107,11 +115,12 @@ cd "$dest"
 added=()
 for f in "${new[@]}"; do
 	[[ -f $f ]] || continue
-	gpg --yes --detach-sign "$f"
+	gpg -u "$gpgkey" --yes --detach-sign "$f"
 	added+=("$f")
 done
-# -s sign db, -v verify existing db sig, -R drop files of replaced versions
-repo-add -s -v -R "$repo.db.tar.zst" "${added[@]}"
+# -s sign db, -k with this machine's key, -v verify existing db sig
+# -R drop files of replaced versions
+repo-add -s -k "$gpgkey" -v -R "$repo.db.tar.zst" "${added[@]}"
 
 # repo-add always symlinks when fs allows, static hosts serve link text
 for db in "$repo.db" "$repo.files"; do
