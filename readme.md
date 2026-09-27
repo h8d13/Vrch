@@ -4,7 +4,7 @@
 > and builds them in clean chroots, mostly aims to test pkg-splitting.
 
 This makes testing patches faster and have reference implementations
-I,e: (`*-docs`, `*-gtk`, `*-qt`, `*-somesidecompenent`).
+(`*-docs`, `*-gtk`, `*-qt`, `*-...`).
 
 > It generates `.SRCINFO` files automatically and uses a custom format:
 > `.RPKGINFO` to track upstream commits and patches revisions...
