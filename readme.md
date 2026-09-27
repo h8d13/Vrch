@@ -1,12 +1,12 @@
 # Vrch
 
 > `vrch` is a repack utility that uses `*.patch` files to modify PKGBUILDs
-> and builds them in clean chroots, mostly aims to test pkg-splitting.
+> and builds them in clean chroots, mostly aims to test pkg-splitting
+> (`*-docs`, `*-gtk`, `*-qt`, `*-...`).
 
-This makes testing patches faster and provides reference implementations
-(`*-docs`, `*-gtk`, `*-qt`, `*-...`).
+This makes testing patches faster and provides reference implementations.
 
-> It generates `.SRCINFO` files automatically and uses a custom format:
+> It generates `.SRCINFO` files automatically and using format:
 > `.RPKGINFO` to track upstream commits and patches revisions.
 
 This aims at [`namcap`](https://gitlab.archlinux.org/pacman/namcap/-/work_items/108) `lots-of-docs` rules amongst other things.
