@@ -8,6 +8,7 @@ This makes testing patches faster and provides reference implementations.
 
 > It generates `.SRCINFO` files automatically and using format:
 > `.RPKGINFO` to track upstream commits and patches revisions.
+> This is part of a larger effort in general packaging [topic](./.github/docs.md)
 
 This aims at [`namcap`](https://gitlab.archlinux.org/pacman/namcap/-/work_items/108) `lots-of-docs` rules amongst other things.
 For instance: `openjpeg2`: 13.4 MiB → 0.7 MiB
