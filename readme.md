@@ -10,7 +10,8 @@ This makes testing patches faster and provides reference implementations.
 > `.RPKGINFO` to track upstream commits and patches revisions.
 > This is part of a larger effort in general packaging [topic](./.github/docs.md).
 
-| openjpeg2 2.5.4          | Download   | Installed  |
+Example `openjpeg2 2.5.4` :
+|                          | Download   | Installed  |
 |--------------------------|------------|------------|
 | Official (`extra`)       | 895.61 KiB | 13.37 MiB  |
 | Vrch                     | 273.11 KiB | 722.71 KiB |
