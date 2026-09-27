@@ -93,11 +93,14 @@ done
 echo "$(wc -l < "$work/old") entries: $(basename "$old") (old)"
 
 echo "== files in more than one new package (want none)"
-grep -v '^d' "$work/new" | sort | uniq -d
+grep -v '^d' "$work/new" | sort | uniq -d > "$work/dups"
+cat "$work/dups"
 
 sort -u "$work/new" -o "$work/new"
 echo "== diff old vs union of new (want empty)"
 diff "$work/old" "$work/new"
 rc=$?
+# sort -u above hides dups from diff, pacman would still conflict on them
+[ -s "$work/dups" ] && rc=1
 [ "$rc" -eq 0 ] && echo "OK: identical" || echo "FAIL: differences above"
 exit "$rc"
