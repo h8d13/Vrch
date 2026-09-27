@@ -3,13 +3,14 @@
 > `vrch` is a repack utility that uses `*.patch` files to modify PKGBUILDs
 > and builds them in clean chroots, mostly aims to test pkg-splitting.
 
-This makes testing patches faster and have reference implementations
+This makes testing patches faster and provides reference implementations
 (`*-docs`, `*-gtk`, `*-qt`, `*-...`).
 
 > It generates `.SRCINFO` files automatically and uses a custom format:
-> `.RPKGINFO` to track upstream commits and patches revisions...
+> `.RPKGINFO` to track upstream commits and patches revisions.
 
 This aims at [`namcap`](https://gitlab.archlinux.org/pacman/namcap/-/work_items/108) `lots-of-docs` rules amongst other things.
+For instance: `openjpeg2`: 13.4 MiB → 0.7 MiB
 
 ---
 
@@ -28,7 +29,7 @@ Pubkey IDs: [`83CE533ED3212DA833DA03034066352FC2E0674B`](./vrch.pub),
 ## Repos:
 
 Then edit `/etc/pacman.conf`
-> Add above `[core]` if desired. Or `pacman -S vrch/somepkg`
+> `pacman -S vrch/somepkg`
 
 ```
 [vrch]
