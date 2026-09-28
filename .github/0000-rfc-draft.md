@@ -135,7 +135,7 @@ Built in a clean chroot from the official PKGBUILD with this [patch](https://git
 
 > The difference IS usually `doxygen`, `graphviz` versions recorded in `.BUILDINFO`
 
-And can already be checked using [`checkpkg`](https://gitlab.archlinux.org/archlinux/devtools/-/blob/master/src/checkpkg.in) from `devtools` with the incoming/outgoing `<||>` lists.
+And is already be checked using [`checkpkg`](https://gitlab.archlinux.org/archlinux/devtools/-/blob/master/src/checkpkg.in) from `devtools` with the incoming/outgoing `<||>` lists.
 
 A more "dev-ish" example, `clangd`: pulls in ~21 MiB of docs, then `llvm` pulls in another ~50 MiB.
 
