@@ -214,7 +214,7 @@ The bus factor (how many people actively work on packaging, tools, ...) isn't mi
 
 A packager might say "I'd like to keep my PKGBUILDs simple", or "this package is already small".
 
-The former is solved by the changes in `makepkg`; the latter is relative to how much of the package is split out.
+The former is solved by the changes in `makepkg`; the latter is relative to how much of the package is able to be split out.
 
 Total size isn't indicative of how much a split is beneficial: this should be judged in percentages/ratios, not by whether the package is "small" (when compressed) to begin with.
 
