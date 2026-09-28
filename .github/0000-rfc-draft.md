@@ -131,11 +131,11 @@ Example `openjpeg2 2.5.4`:
 
 Built in a clean chroot from the official PKGBUILD with this [patch](https://github.com/h8d13/Vrch/blob/master/pkgs/openjpeg2/split-docs.patch) applied.
 
+`openjpeg2` is pulled in by almost everything a desktop user would use (document editor, file manager, etc.).
+
 > The difference IS usually `doxygen`, `graphviz` versions recorded in `.BUILDINFO`
 
-And can already be checked using `checkpkg` from `devtools` with the incoming/outgoing `<||>` lists.
-
-`openjpeg2` is pulled in by almost everything a desktop user would use (document editor, file manager, etc.).
+And can already be checked using [`checkpkg`](https://gitlab.archlinux.org/archlinux/devtools/-/blob/master/src/checkpkg.in) from `devtools` with the incoming/outgoing `<||>` lists.
 
 A more "dev-ish" example, `clangd`: pulls in ~21 MiB of docs, then `llvm` pulls in another ~50 MiB.
 
