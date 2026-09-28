@@ -1,13 +1,17 @@
+<!--
 ---
 draft: true
 title: "0000 Package splits: formal rules and tooling"
 ---
+-->
 
 # Package splits: formal rules and tooling
 
+<!--
 - Date proposed: 2026-10-31
 - RFC MR: <https://gitlab.archlinux.org/archlinux/rfcs/-/merge_requests/0000>
   **update this number after RFC merge request has been filed**
+-->
 
 ## Summary
 
