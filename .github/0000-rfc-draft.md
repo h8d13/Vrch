@@ -114,10 +114,21 @@ The more granular the packages, the less tangled the dependency graph.
 
 ### Proposals
 
-1. **`makepkg`: built-in split partitioning.** Land a declarative mechanism (i.e. [`splitpkg2`](https://gitlab.archlinux.org/pacman/pacman/-/tree/allan/splitpkg2) / [MR 314](https://gitlab.archlinux.org/pacman/pacman/-/merge_requests/314)) so splits no longer need the `_pick()` boilerplate.
-2. **`namcap`: stricter `lots-of-docs`.** Fix the checked paths to cover common docs locations, and lower the warning threshold from 50 % to 25-30 %. It is only a warning, so a lower threshold costs little.
-3. **Naming conventions.** Define standard suffixes so splits look familiar to users: `*-docs`, `*-gtk`, `*-qt`, and what else is common? `*-completions`, `*-dev`, `*-lang`, `*-dbg` (see Unresolved Questions).
-4. **License deduplication.** Let `makepkg` handle licenses for split packages sharing the parent's license (i.e. symlink instead of a hard copy, if parent present), removing the per-split `install` line.
+1. **`makepkg`: built-in split partitioning.**
+
+Land a declarative mechanism (i.e. [`splitpkg2`](https://gitlab.archlinux.org/pacman/pacman/-/tree/allan/splitpkg2) / [MR 314](https://gitlab.archlinux.org/pacman/pacman/-/merge_requests/314)) so splits no longer need the `_pick()` boilerplate.
+
+2. **`namcap`: stricter `lots-of-docs`.**
+
+ Fix the checked paths to cover common docs locations, and lower the warning threshold from 50 % to 25-30 %. It is only a warning, so a lower threshold costs little.
+
+3. **Naming conventions.**
+
+Define standard suffixes so splits look familiar to users: `*-docs`, `*-gtk`, `*-qt`, and what else is common? `*-completions`, `*-dev`, `*-lang`, `*-dbg` (see Unresolved Questions).
+
+4. **License deduplication.**
+
+Let `makepkg` handle licenses for split packages sharing the parent's license (i.e. symlink instead of a hard copy, if parent present), removing the per-split `install` line.
 
 ### Micro-analysis
 
@@ -171,9 +182,9 @@ The same applies to end-users:
 
 The main drawback is errors in packaging when performing these splits, plus added complexity and bus factor (see below).
 
-Overdoing splits might confuse users wondering why they don't have X or Y. "Meta" packages solve this.
+Second, overdoing splits might confuse users wondering why they don't have X or Y. "Meta" packages solve this.
 
-More packages means more entries in the sync databases, so each sync costs slightly more.
+Finally, more packages means more entries in the sync databases, so each sync costs slightly more.
 
 Measured on `extra.db` (repacked with/without its 213 `*-docs` entries): ~764 B per split entry (gzip), paid by every machine on every db download.
 Docs would need to be truly tiny (i.e. a few KiB), this might tip the scale in favor of not splitting, but this is unrealistic compared to real world cases.
