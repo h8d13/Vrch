@@ -1,7 +1,6 @@
 build/
+out/
 
 .**.md
 .split/*
 *.old*
-# published on the dist branch by publish.sh
-out/
