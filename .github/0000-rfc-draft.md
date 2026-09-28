@@ -216,6 +216,10 @@ It builds patched official PKGBUILDs in clean chroots, and serves as a reference
 There is also a Reddit [discussion](https://www.reddit.com/r/archlinux/comments/1wpur5n/on_a_mission_making_everyones_systems_lighter/)
 Where some back-and-forth happened before drafting this RFC, where the biggest argument was simply that developpers' time is in short supply.
 
+Some suggested "solutions": https://wiki.archlinux.org/title/Pacman/Tips_and_tricks#Installing_only_content_in_required_languages
+`NoExtract=` options in `pacman.conf` and `makepkg.conf` but this is hacky and doesn't cover the root cause.
+
+
 This whole rabbit-hole started with a [`coreutils` symlink locales bug](https://gitlab.archlinux.org/archlinux/packaging/packages/coreutils/-/work_items/10).
 
 The alternative is to keep bundling whatever a `meson` or `cmake` (or other) build installs. Some consider that the "KISS" option, but I disagree.
