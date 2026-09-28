@@ -85,7 +85,7 @@ This ties back directly to the "bad cases of waste" seen above.
 
 As seen in my bug report [108](https://gitlab.archlinux.org/pacman/namcap/-/work_items/108), the checked paths were wrong, and **do not cover all common docs paths**.
 
-A simple [`pyalpm` script](https://github.com/h8d13/Vrch/blob/master/scripts/drtfm.py) let's you query your packages-db with more paths and top candidates.
+A simple [`pyalpm` script](https://github.com/h8d13/Vrch/blob/master/scripts/drtfm.py) lets you query your packages-db with more paths and top candidates.
 
 ### Problem 3: Duplicated licenses
 
@@ -146,16 +146,16 @@ Built in a clean chroot from the official PKGBUILD with this [patch](https://git
 
 > The difference IS usually `doxygen`, `graphviz` versions recorded in `.BUILDINFO`
 
-And is already be checked using [`checkpkg`](https://gitlab.archlinux.org/archlinux/devtools/-/blob/master/src/checkpkg.in) from `devtools` with the incoming/outgoing `<||>` lists.
+And is already checked using [`checkpkg`](https://gitlab.archlinux.org/archlinux/devtools/-/blob/master/src/checkpkg.in) from `devtools` with the incoming/outgoing `<||>` lists.
 
 A more "dev-ish" example, `clang`: pulls in ~21 MiB of docs, then `llvm` pulls in another ~50 MiB. (20% of the total 380MB)
 
 Compression helps over the wire (HTML docs compress ~15:1), but the **full size still ends up on users' systems**.
 It also varies by type: PNG icons barely compress at all, binaries and plain text sit somewhere in between.
 
-If anything the compression here, does a remarkable job at hiding the stem of the issue, not fixing it at root cause.
+If anything the compression here, does a remarkable job at hiding the extent of the issue, not fixing it at root cause.
 
-Man pages are deliberatly almost always left in the base package.
+Man pages are deliberately almost always left in the base package.
 
 ### Macro-analysis
 
@@ -201,7 +201,7 @@ Finally, more packages means more entries in the sync databases, so each sync co
 Measured on `extra.db` (repacked with/without its 213 `*-docs` entries): ~764 B per split entry (gzip), paid by every machine on every db download.
 Docs would need to be truly tiny (i.e. a few KiB), this might tip the scale in favor of not splitting, but this is unrealistic compared to real world cases.
 
-The example `openjpeg2` used is the worse offender I measured, but I would say anything above 25% gain is fair game to split, especially when installed frequently.
+The example `openjpeg2` used is the worst offender I measured, but I would say anything above 25% gain is fair game to split, especially when installed frequently.
 
 ## Unresolved Questions
 
@@ -235,7 +235,7 @@ I have a GitHub [repo](https://github.com/h8d13/Vrch/) that documents and tests 
 It builds patched official PKGBUILDs in clean chroots, and serves as a reference implementation for the numbers above.
 
 There is also a Reddit [discussion](https://www.reddit.com/r/archlinux/comments/1wpur5n/on_a_mission_making_everyones_systems_lighter/)
-Where some back-and-forth happened before drafting this RFC, where the biggest argument was simply that developpers' time is in short supply.
+Where some back-and-forth happened before drafting this RFC, where the biggest argument was simply that developers' time is in short supply.
 But that to me doesn't change the standing of what can be improved in the future.
 
 Some suggested ["solutions"](https://wiki.archlinux.org/title/Pacman/Tips_and_tricks#Installing_only_content_in_required_languages) from this thread:
