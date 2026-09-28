@@ -91,7 +91,7 @@ A simple [`pyalpm` script](https://github.com/h8d13/Vrch/blob/master/scripts/drt
 
 Split packages restate licenses for each split:
 
-```bash
+```shell
   install -Dm644 openjpeg-"${pkgver}"/LICENSE \
     -t "${pkgdir}"/usr/share/licenses/${pkgname}/
 ```
