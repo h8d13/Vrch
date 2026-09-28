@@ -79,13 +79,13 @@ It has been lingering for 6+ months, on how to handle splits with built-in funct
 
 ### Problem 2: Lint rules
 
-Arch's own tooling, [namcap](https://gitlab.archlinux.org/pacman/namcap/-/work_items/108), defines the `lots-of-docs` rule as docs making up more than 50 % of a package.
+Arch's own tooling, [`namcap`](https://gitlab.archlinux.org/pacman/namcap/), defines the `lots-of-docs` rule as docs making up more than 50 % of a package.
 
 This ties back directly to the "bad cases of waste" seen above.
 
-As seen in my bug report, the checked paths were wrong, and **do not cover all common docs paths**.
+As seen in my bug report [108](https://gitlab.archlinux.org/pacman/namcap/-/work_items/108), the checked paths were wrong, and **do not cover all common docs paths**.
 
-A simple [`pyalpm` script](https://github.com/h8d13/Vrch/blob/master/scripts/drtfm.py) let's you query you packages-db with more paths and top candidates.
+A simple [`pyalpm` script](https://github.com/h8d13/Vrch/blob/master/scripts/drtfm.py) let's you query your packages-db with more paths and top candidates.
 
 ### Problem 3: Duplicated licenses
 
