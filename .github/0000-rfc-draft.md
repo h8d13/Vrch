@@ -148,12 +148,14 @@ Built in a clean chroot from the official PKGBUILD with this [patch](https://git
 
 And is already be checked using [`checkpkg`](https://gitlab.archlinux.org/archlinux/devtools/-/blob/master/src/checkpkg.in) from `devtools` with the incoming/outgoing `<||>` lists.
 
-A more "dev-ish" example, `clangd`: pulls in ~21 MiB of docs, then `llvm` pulls in another ~50 MiB.
+A more "dev-ish" example, `clang`: pulls in ~21 MiB of docs, then `llvm` pulls in another ~50 MiB. (20% of the total 380MB)
 
-Compression helps over the wire (HTML docs compress ~15:1), but the full size still ends up on users' systems.
-It also varies by type: PNG icons barely compress, binaries and plain text sit somewhere in between.
+Compression helps over the wire (HTML docs compress ~15:1), but the **full size still ends up on users' systems**.
+It also varies by type: PNG icons barely compress at all, binaries and plain text sit somewhere in between.
 
-Man pages are deliberatly almost always left in the base package or split only if they have several.
+If anything the compression here, does a remarkable job at hiding the stem of the issue, not fixing it at root cause.
+
+Man pages are deliberatly almost always left in the base package.
 
 ### Macro-analysis
 
@@ -169,13 +171,20 @@ API CHANGES BETWEEN 5.1 AND 5.2
 This means **each release** of a package is downloaded in full by every machine that has it, docs and debug UI tools included.
 
 As a rough, illustrative example: saving ~30 MiB installed across 3 packages, at a ~6:1 compression ratio, is ~5 MiB over the wire.
-5 MiB × 100,000 affected machines × 10 releases a year comes to about 5 TB a year, for 3 packages. (Add to this CI, container images, etc.)
+5 MiB × 100,000 affected machines × 10 releases a year comes to about 5 TB a year, for 3 packages.
+
+The space saving is simply relative to how much the package is used AND updated, not only "it is small, don't worry".
+For instance ones that are commonly used in containers, CI, or even just frequently installed, should be prioritized for splits.
 
 As seen in monitoring (https://dashboards.archlinux.org/dashboards), the load on mirrors makes this a compelling argument.
+DevOps people might also find this interesting as a whole.
 
 The same applies to end-users:
 
 - Differences in speed/cost/accessibility of "good" internet: https://www.speedtest.net/global-index
+
+> internet prices being higher at certain times or even slower during peak usage around you, or not many mirrors around!
+
 - Storage prices/speed: https://pcpartpicker.com/trends/price/internal-hard-drive/
 
 ## Drawbacks
@@ -188,6 +197,8 @@ Finally, more packages means more entries in the sync databases, so each sync co
 
 Measured on `extra.db` (repacked with/without its 213 `*-docs` entries): ~764 B per split entry (gzip), paid by every machine on every db download.
 Docs would need to be truly tiny (i.e. a few KiB), this might tip the scale in favor of not splitting, but this is unrealistic compared to real world cases.
+
+The example `openjpeg2` used is the worse offender I measured, but I would say anything above 25% gain is fair game to split, especially when installed frequently.
 
 ## Unresolved Questions
 
@@ -209,6 +220,10 @@ Compound this per package, per release (without delta upgrades), per affected ma
 Which suffix categories to standardize, i.e. `*-completions`, `*-dev`, `*-lang`, `*-dbg`.
 With pre-defined categories, a packager can be as specific as they wish, while the result stays familiar to users. This also entails per-case basis.
 
+## Unresolved 4: Gathering more data
+
+Having proper data from top mirrors would help make informed decisions.
+
 ## Alternatives Considered
 
 I have a GitHub repo that documents and tests most of the patches: https://github.com/h8d13/Vrch/
@@ -218,7 +233,6 @@ Where some back-and-forth happened before drafting this RFC, where the biggest a
 
 Some suggested "solutions": https://wiki.archlinux.org/title/Pacman/Tips_and_tricks#Installing_only_content_in_required_languages
 `NoExtract=` options in `pacman.conf` and `makepkg.conf` but this is hacky and doesn't cover the root cause.
-
 
 This whole rabbit-hole started with a [`coreutils` symlink locales bug](https://gitlab.archlinux.org/archlinux/packaging/packages/coreutils/-/work_items/10).
 
