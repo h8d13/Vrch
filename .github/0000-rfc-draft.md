@@ -75,7 +75,7 @@ The problems below are what make that work harder than it needs to be.
 There is a maintainer's richer declarative [alternative](https://gitlab.archlinux.org/pacman/pacman/-/tree/allan/splitpkg2).
 
 Full [thread](https://gitlab.archlinux.org/pacman/pacman/-/merge_requests/314#note_561561)
-It has been lingering for 6+ months, on how to handle splits with built-in functions, instead of the boilerplate above.
+has been lingering for 6+ months, on how to handle splits with built-in functions, instead of the boilerplate above.
 
 ### Problem 2: Lint rules
 
