@@ -110,8 +110,6 @@ Quoting @Toolybird:
 See the [`alpm-sonamev2`](https://alpm.archlinux.page/specifications/alpm-sonamev2.7.html) specification.
 The more granular the packages, the less tangled the dependency graph.
 
-This whole effort started with a [`coreutils` symlink locales bug](https://gitlab.archlinux.org/archlinux/packaging/packages/coreutils/-/work_items/10).
-
 ## Specification
 
 ### Proposals
@@ -205,6 +203,8 @@ With pre-defined categories, a packager can be as specific as they wish, while t
 I have a GitHub repo that documents and tests most of the patches: https://github.com/h8d13/Vrch/
 It builds patched official PKGBUILDs in clean chroots, and serves as a reference implementation for the numbers above.
 There is also a Reddit [discussion](https://www.reddit.com/r/archlinux/comments/1wpur5n/on_a_mission_making_everyones_systems_lighter/) where some back-and-forth happened before drafting this RFC.
+
+This whole rabbit-hole started with a [`coreutils` symlink locales bug](https://gitlab.archlinux.org/archlinux/packaging/packages/coreutils/-/work_items/10).
 
 The alternative is to keep bundling whatever a `meson` or `cmake` (or other) build installs. Some consider that the "KISS" option, but I disagree.
 Explicit wins over implicit: the build stays the same, only the packaging changes. A maintainer pays the cost once, and all down-stream (users, infra) benefits.
