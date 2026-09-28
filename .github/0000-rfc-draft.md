@@ -226,17 +226,21 @@ Having proper data from top mirrors would help make informed decisions.
 
 ## Alternatives Considered
 
-I have a GitHub repo that documents and tests most of the patches: https://github.com/h8d13/Vrch/
+I have a GitHub [repo](https://github.com/h8d13/Vrch/) that documents and tests most of the patches
 It builds patched official PKGBUILDs in clean chroots, and serves as a reference implementation for the numbers above.
+
 There is also a Reddit [discussion](https://www.reddit.com/r/archlinux/comments/1wpur5n/on_a_mission_making_everyones_systems_lighter/)
+
 Where some back-and-forth happened before drafting this RFC, where the biggest argument was simply that developpers' time is in short supply.
+But that to me doesn't change the standing of what can be improved in the future.
 
-Some suggested "solutions": https://wiki.archlinux.org/title/Pacman/Tips_and_tricks#Installing_only_content_in_required_languages
-`NoExtract=` options in `pacman.conf` and `makepkg.conf` but this is hacky and doesn't cover the root cause.
-
-This whole rabbit-hole started with a [`coreutils` symlink locales bug](https://gitlab.archlinux.org/archlinux/packaging/packages/coreutils/-/work_items/10).
+Some suggested ["solutions"](https://wiki.archlinux.org/title/Pacman/Tips_and_tricks#Installing_only_content_in_required_languages) from this thread:
+`NoExtract=` options in `pacman.conf` and `makepkg.conf` but this is hacky and doesn't cover the root causes.
 
 The alternative is to keep bundling whatever a `meson` or `cmake` (or other) build installs. Some consider that the "KISS" option, but I disagree.
 Explicit wins over implicit: the build stays the same, only the packaging changes. A maintainer pays the cost once, and all down-stream (users, infra) benefits.
 
 And any decision handed back to the power-user is a "win" in terms of Arch philosophy.
+
+---
+This whole rabbit-hole started with a [`coreutils` symlink locales bug](https://gitlab.archlinux.org/archlinux/packaging/packages/coreutils/-/work_items/10).
