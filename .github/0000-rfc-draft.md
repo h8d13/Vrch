@@ -171,7 +171,10 @@ API CHANGES BETWEEN 5.1 AND 5.2
 This means **each release** of a package is downloaded in full by every machine that has it, docs and debug UI tools included.
 
 As a rough, illustrative example: saving ~30 MiB installed across 3 packages, at a ~6:1 compression ratio, is ~5 MiB over the wire.
+
 5 MiB × 100,000 affected machines × 10 releases a year comes to about 5 TB a year, for 3 packages.
+
+Add to this CI, container images, etc.
 
 The space saving is simply relative to how much the package is used AND updated, not only "it is small, don't worry".
 For instance ones that are commonly used in containers, CI, or even just frequently installed, should be prioritized for splits.
@@ -210,9 +213,11 @@ The bus factor (how many people actively work on packaging, tools, ...) isn't mi
 ### Unresolved 2: Package Maintainer style / "It's small"
 
 A packager might say "I'd like to keep my PKGBUILDs simple", or "this package is already small".
+
 The former is solved by the changes in `makepkg`; the latter is relative to how much of the package is split out.
 
 Total size isn't indicative of how much a split is beneficial: this should be judged in percentages/ratios, not by whether the package is "small" (when compressed) to begin with.
+
 Compound this per package, per release (without delta upgrades), per affected machine, as in the Micro-analysis above.
 
 ### Unresolved 3: Defining conventions
@@ -230,7 +235,6 @@ I have a GitHub [repo](https://github.com/h8d13/Vrch/) that documents and tests 
 It builds patched official PKGBUILDs in clean chroots, and serves as a reference implementation for the numbers above.
 
 There is also a Reddit [discussion](https://www.reddit.com/r/archlinux/comments/1wpur5n/on_a_mission_making_everyones_systems_lighter/)
-
 Where some back-and-forth happened before drafting this RFC, where the biggest argument was simply that developpers' time is in short supply.
 But that to me doesn't change the standing of what can be improved in the future.
 
