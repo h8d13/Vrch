@@ -220,7 +220,7 @@ Compound this per package, per release (without delta upgrades), per affected ma
 Which suffix categories to standardize, i.e. `*-completions`, `*-dev`, `*-lang`, `*-dbg`.
 With pre-defined categories, a packager can be as specific as they wish, while the result stays familiar to users. This also entails per-case basis.
 
-## Unresolved 4: Gathering more data
+### Unresolved 4: Gathering more data
 
 Having proper data from top mirrors would help make informed decisions.
 
