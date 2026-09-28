@@ -89,14 +89,14 @@ A simple [`pyalpm` script](https://github.com/h8d13/Vrch/blob/master/scripts/drt
 
 ### Problem 3: Duplicated licenses
 
-Split packages restate licenses for each split:
+Split packages often restate licenses for each split:
 
 ```shell
   install -Dm644 openjpeg-"${pkgver}"/LICENSE \
     -t "${pkgdir}"/usr/share/licenses/${pkgname}/
 ```
 
-Repeated for every split, where the license is (usually) the same and the parent package is likely already installed.
+Repeated for every split, where the license is (usually) the same and the parent package that is likely, already installed.
 More broadly, a full desktop install carries several MiB of license files that are identical except for the `<name/company> <year>` and SPDX headers.
 
 ### More precedents
@@ -176,7 +176,7 @@ As a rough, illustrative example: saving ~30 MiB installed across 3 packages, at
 The space saving is simply relative to how much the package is used AND updated, not only "it is small, don't worry".
 For instance ones that are commonly used in containers, CI, or even just frequently installed, should be prioritized for splits.
 
-As seen in monitoring (https://dashboards.archlinux.org/dashboards), the load on mirrors makes this a compelling argument.
+As seen in monitoring (https://dashboards.archlinux.org/dashboards), the load on mirrors providers makes this a compelling argument.
 DevOps people might also find this interesting as a whole.
 
 The same applies to end-users:
