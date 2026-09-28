@@ -207,7 +207,7 @@ Compound this per package, per release (without delta upgrades), per affected ma
 ### Unresolved 3: Defining conventions
 
 Which suffix categories to standardize, i.e. `*-completions`, `*-dev`, `*-lang`, `*-dbg`.
-With pre-defined categories, a packager can be as specific as they wish, while the result stays familiar to users.
+With pre-defined categories, a packager can be as specific as they wish, while the result stays familiar to users. This also entails per-case basis.
 
 ## Alternatives Considered
 
