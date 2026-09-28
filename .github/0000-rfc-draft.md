@@ -1,6 +1,6 @@
 ---
 draft: true
-title: 0000 Package splits: formal rules and tooling
+title: "0000 Package splits: formal rules and tooling"
 ---
 
 # Package splits: formal rules and tooling
