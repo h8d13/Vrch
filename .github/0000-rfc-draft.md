@@ -185,13 +185,13 @@ Docs would need to be truly tiny (i.e. a few KiB), this might tip the scale in f
 Certain packagers handle much more complex packages overall (i.e. the extreme `qemu` or `vlc` splits).
 The bus factor (how many people actively work on packaging, tools, ...) isn't mine to answer, but it's one I'd help with where I can.
 
-### Unresolved 2: Package Maintainer style + "It's small"
+### Unresolved 2: Package Maintainer style / "It's small"
 
 A packager might say "I'd like to keep my PKGBUILDs simple", or "this package is already small".
 The former is solved by the changes in `makepkg`; the latter is relative to how much of the package is split out.
 
-Total size doesn't show how much a split is beneficial: this should be judged in percentages/ratios, not by whether the package is "small" (when compressed) to begin with.
-Compound this per package, per release (without delta upgrades), per affected machine, as in the Macro-analysis above.
+Total size isn't indicative of how much a split is beneficial: this should be judged in percentages/ratios, not by whether the package is "small" (when compressed) to begin with.
+Compound this per package, per release (without delta upgrades), per affected machine, as in the Micro-analysis above.
 
 ### Unresolved 3: Defining conventions
 
@@ -202,7 +202,8 @@ With pre-defined categories, a packager can be as specific as they wish, while t
 
 I have a GitHub repo that documents and tests most of the patches: https://github.com/h8d13/Vrch/
 It builds patched official PKGBUILDs in clean chroots, and serves as a reference implementation for the numbers above.
-There is also a Reddit [discussion](https://www.reddit.com/r/archlinux/comments/1wpur5n/on_a_mission_making_everyones_systems_lighter/) where some back-and-forth happened before drafting this RFC.
+There is also a Reddit [discussion](https://www.reddit.com/r/archlinux/comments/1wpur5n/on_a_mission_making_everyones_systems_lighter/)
+Where some back-and-forth happened before drafting this RFC, where the biggest argument was simply that developpers' time is in short supply.
 
 This whole rabbit-hole started with a [`coreutils` symlink locales bug](https://gitlab.archlinux.org/archlinux/packaging/packages/coreutils/-/work_items/10).
 
