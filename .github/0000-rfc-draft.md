@@ -350,6 +350,10 @@ With pre-defined categories, a packager can be as specific as they wish, while t
 
 Having proper data from top mirrors would help make informed decisions.
 
+### Unresolved 5: Automating splits
+
+This is self-explanatory and is most of what was covered in the `abuild` vs `makepkg`.
+
 ## Alternatives Considered
 
 I have a GitHub [repo](https://github.com/h8d13/Vrch/) that documents and tests most of the patches
