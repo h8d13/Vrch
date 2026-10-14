@@ -269,7 +269,9 @@ Built in a clean chroot from the official PKGBUILD with this [patch](https://git
 
 And is already checked using [`checkpkg`](https://gitlab.archlinux.org/archlinux/devtools/-/blob/master/src/checkpkg.in) from `devtools` with the incoming/outgoing `<||>` lists.
 
-A more "dev-ish" example, `clang`: pulls in ~21 MiB of docs, then `llvm` pulls in another ~50 MiB. (20% of the total 380MB)
+A more "dev-ish" example, `clang`: pulls in ~21 MiB of docs, then `llvm` pulls in another ~50 MiB. (Installed: 20% of the total 380MB)
+
+A `python` interpreter takes ~74MB on Arch vs ~23MB on Alpine (with many splits).
 
 Compression helps over the wire (HTML docs compress ~15:1), but the **full size still ends up on users' systems**.
 It also varies by type: PNG icons barely compress at all, binaries and plain text sit somewhere in between.
