@@ -104,6 +104,127 @@ More broadly, a full desktop install carries several MiB of license files that a
 Alpine Linux [precedent](https://wiki.alpinelinux.org/wiki/Creating_an_Alpine_package#subpackages):
 it always splits, and documents it as such for future packagers.
 
+This brought me to further exploration of Alpine's [`abuild`](https://gitlab.alpinelinux.org/alpine/abuild/)
+
+Which in it's essence is still just [`pkgfile`](https://crux.nu/doc/handbook.html#Pkgfile) with extra steps... 
+
+The main difference is how they detect splits. 
+
+
+`rootpkg` (A:2182), single fakeroot session:
+
+```
+package -> prepare_subpackages -> prepare_package -> create_apks
+```
+
+1. `package()` runs once, installs everything into `$pkgdir`.
+2. `prepare_subpackages` (A:952) walks `subpackages=` in declared order,
+   re-invokes abuild per entry: `pre_split <splitfunc> prepare_package`.
+   `pre_split` (A:944) resets `provides`/`install_if`.
+3. Split funcs carve files out of `$pkgdir` into `$subpkgdir` via `amove`
+   (A:67): `mv` + `rmdir -p` of emptied parents.
+4. Leftovers in `$pkgdir` = main package.
+
+Order is semantic: curl has `... $pkgname-dev libcurl`, `-dev` takes the
+unversioned `.so` links first, `libcurl()` then `amove usr/lib` for the rest.
+
+### Name to function
+
+`subpkg_set` (A:551), entry form `name[:func[:arch]]`:
+
+- default func = suffix after last `-` (`foo-dev` -> `dev`)
+- `*-{bash,zsh,fish}-completion` -> `{bash,zsh,fish}comp`
+- auto `noarch`: `-doc -openrc -lang *-completion -pyc -nftrules -systemd -udev`
+
+Each `X()` is a thin wrapper over `default_X()`; APKBUILDs override `X()`
+and call `default_X` + extras.
+
+### Default split funcs (A:1896-2160)
+
+| func | moves | deps / extras |
+|---|---|---|
+| `dev` | `usr/include`, `*/pkgconfig`, `aclocal`, `gettext`, `usr/bin/*-config`, vapi, gir, mkspecs, `*/cmake`, glade, any `include/`, `*.[cho]`, `*.prl`, `*.a` (no `-static` split), unversioned `lib*.so` links | `$depends_dev` |
+| `static` | `*.a` | matching `-dev` if present |
+| `libs` | `lib*.so.[0-9]*` | `$depends_libs` |
+| `doc` | `usr/share/{doc,man,info,html,sgml,licenses,gtk-doc,ri,help}` | gzip man, `install_if="docs $pkgname=$ver"` |
+| `lang` | `usr/share/locale` (`$langdir`) | `install_if="$pkgname=$ver lang"` |
+| `dbg` | ELF debug via `objcopy --only-keep-debug` | auto-added with `DEFAULT_DBG` (A:3003) |
+| `openrc` / `systemd` / `udev` | init dirs, `usr/lib/systemd`, `usr/lib/udev` | `install_if="<init> $name=$ver"` |
+| `*comp` | completion dirs | `install_if="$name=$ver <shell>"` |
+| `pyc` | `__pycache__` | `install_if="$name=$ver pyc"` |
+
+### Auto provides / depends
+
+Per split control dir `.control.$subpkgname`:
+
+- `so:` `scan_shared_objects` (A:1519), `scanelf --soname` + `.needs-so`
+- `pc:` provides `prepare_pkgconfig_provides` (A:1291), requires
+  `scan_pkgconfig_depends` (A:1679, incl. `Requires.private`)
+- `cmd:` `prepare_command_provides` (A:1310), executables in `{,usr/}{s,}bin`
+- `py3.x:`, symlink targets
+
+`trace_apk_deps` (A:1426) resolves needs against sibling splits first
+(`subpkg_provides`, A:1422), then installed packages. Intra-pkg links
+(`curl` -> `so:libcurl.so.4` -> `libcurl`) need no manual entry.
+
+`depends_dev` = only hand-kept list. Convention: `makedepends_host="$depends_dev"`.
+
+## makepkg today
+
+### Packaging flow
+
+- `run_single_packaging` (M:974) per `package_X()` (`run_split_packaging`,
+  M:985), each into a fresh `$pkgdir`, then `tidy_install` + `lint_package`.
+- Only auto split: `create_debug_package` (M:754), fed by `tidy/50-strip.sh`
+  moving symbols into `$pkgdirbase/$pkgbase-debug`. Runs after all splits.
+- `write_pkginfo` (M:600) runs per package: `generate_autodeps` (M:604), then
+  `find_libprovides`/`find_libdepends` (M:628).
+
+### Soname handling, two separate mechanisms
+
+1. Versioned, opt-in by name (what Arch packaging uses today):
+   `provides=(libfoo.so)` / `depends=(libfoo.so)` in the PKGBUILD,
+   `find_libprovides` (M:537) / `find_libdepends` (M:472) rewrite them to
+   `libfoo.so=1-64` from `readelf` SONAME/NEEDED. Names stay manual.
+2. `lib/autodep/*.sh`, gated by `OPTIONS=(autodeps)` (off by default in
+   `makepkg.conf`):
+   - `library_provides.sh`: `lib:libfoo.so.1`, unversioned, only files at
+     depth 1 of `LIB_DIRS` (`lib:usr/lib lib32:usr/lib32`).
+   - `library_depends.sh`: `ldd` each executable; skips libs present in own
+     `$pkgdir`; adds `lib:` dep only if `pacman -T` says the host already
+     satisfies it, otherwise silently dropped ("helps bootstrapping").
+   - `binary_provides.sh`: `bin:name` for executables in `BIN_DIRS`,
+     unversioned. `BIN_DIRS` is unset in the shipped `makepkg.conf`, so
+     no-op by default. Closest match to Alpine `cmd:`, minus `=ver`.
+   - No pkg-config scanning anywhere.
+
+### Upstream
+
+- `wi/16` "Implement an alternative for `_pick()`" (open): asks for
+  per-split `filelist=()`.
+- `mr/314` (`allan/splitpkg2`, open): `stash()` runs once into
+  `$stashdir`, each `package_X()` takes files via `filelist=()` (extglob,
+  `!` excludes), warns on unpackaged leftovers. Carve primitive, but
+  rules stay manual per PKGBUILD: no defaults, no split by name suffix.
+- `install_if`: no `.PKGINFO` key in `write_pkginfo`, no issue/MR found
+  in `pacman/pacman` search.
+
+## Gaps
+
+| abuild | makepkg | gap |
+|---|---|---|
+| `package()` once + `amove` | per-split install; `stash()` + `filelist` in `mr/314` | carve mode (reuse `mr/314` if merged) |
+| `default_*` by name suffix | none | `lib/split/*.sh` (like `tidy/`, `autodep/`), default filelists per suffix |
+| `so:` provides, versioned, sibling-aware | `libfoo.so=1-64` manual names, or `lib:` autodeps unversioned | auto + versioned provides |
+| `so:` needs resolved against siblings first | `library_depends` checks own `$pkgdir` + host only | sibling lookup, else carved splits lose lib deps or depend on host state |
+| `pc:` provides/needs | missing | `autodep/pkgconfig_{provides,depends}.sh` |
+| `cmd:` | `bin:` via `BIN_DIRS`, unset by default | enable `BIN_DIRS`, add `=ver` |
+| `depends_dev` | missing | array applied to `-dev` split |
+| `static` keeps `*.a` | `OPTIONS=(!staticlibs)` default, `tidy/10-staticlibs.sh` deletes `*.a` that have a `.so` sibling | flip to `staticlibs` when a `-static` split exists |
+| `install_if` | missing in pacman | libalpm + `.PKGINFO` feature, out of makepkg scope; interim `optdepends` |
+
+### Autodeps
+
 Quoting @Toolybird:
 > But having said all that, there has been a push to "fix" situations like this in preparation for upcoming `alpm-sonamev2`/"autodeps".
 
