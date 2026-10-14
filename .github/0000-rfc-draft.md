@@ -369,7 +369,9 @@ Some suggested ["solutions"](https://wiki.archlinux.org/title/Pacman/Tips_and_tr
 `NoExtract=` options in `pacman.conf` and `makepkg.conf` but this is hacky and doesn't cover the root causes.
 
 The alternative is to keep bundling whatever a `meson` or `cmake` (or other) build installs. Some consider that the "KISS" option, but I disagree.
-Explicit wins over implicit: the build stays the same, only the packaging changes. A maintainer pays the cost once, and all down-stream (users, infra) benefits.
+Explicit wins over implicit: the build stays the same, only the packaging changes. 
+
+A maintainer pays the cost once. The tools to build have always been a moving target of improvements that are aimed at making the maintainers' lifes easier, and all down-stream (users, infra) benefits.
 
 And any decision handed back to the power-user is a "win" in terms of Arch philosophy.
 
